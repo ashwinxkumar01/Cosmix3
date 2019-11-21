@@ -79,10 +79,9 @@ public class AsyncUtils {
         });
     }
 
-    public static void save(String id, String name, String token, Toast toast) {
+    public static void save(String id, String name, String token) {
         Executors.newSingleThreadExecutor().execute(() -> {
             CloudUtilsKt.save(id, name.replace(" ","%20"), token);
-            toast.cancel();
         });
     }
 
