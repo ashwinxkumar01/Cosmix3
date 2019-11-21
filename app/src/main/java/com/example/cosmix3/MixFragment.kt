@@ -1,0 +1,155 @@
+package com.example.cosmix3
+
+import android.content.Intent
+import android.os.AsyncTask
+import android.os.Bundle
+import android.util.Log
+import android.view.*
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.ListenerRegistration
+import com.spotify.sdk.android.authentication.AuthenticationClient
+import com.spotify.sdk.android.authentication.AuthenticationRequest
+import com.spotify.sdk.android.authentication.AuthenticationResponse
+import kotlinx.android.synthetic.main.fragment_mix.*
+import android.R.menu
+
+
+
+
+class MixFragment : Fragment() {
+
+    lateinit var recycler: RecyclerView
+    lateinit var adapter: Adapter
+
+    lateinit var currListener: ListenerRegistration
+
+    companion object {
+        lateinit var myActivity: MixActivity
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val root = inflater.inflate(R.layout.fragment_mix, container, false)
+        myActivity = activity as MixActivity
+
+        setHasOptionsMenu(true)
+
+        return root
+    }
+
+    private fun setupToolbar() {
+        val toolbar = view?.findViewById(R.id.my_toolbar) as Toolbar
+        toolbar.inflateMenu(R.menu.bar)
+        val menu = toolbar.menu
+
+
+        toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.filter -> {
+                    true
+                }
+
+                R.id.push -> {
+
+                    savePlaylistToSpotify(myActivity.partyId)
+
+                    true
+
+                }
+
+                R.id.add -> {
+
+                    activity?.supportFragmentManager?.beginTransaction()
+                        ?.replace(R.id.fragment_holder, PlaylistsFragment())?.addToBackStack(null)?.commit()
+
+                    true
+                }
+
+                else -> {
+                    // If we got here, the user's action was not recognized.
+                    // Invoke the superclass to handle it.
+                    super.onOptionsItemSelected(it)
+                }
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        // Inflate the menu to use in the action bar
+        val inflater = activity?.menuInflater
+        inflater?.inflate(R.menu.bar, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initRecycler()
+
+        setupToolbar()
+
+        fillAdapter()
+    }
+
+    fun getSpotifyToken() {
+        val builder = AuthenticationRequest.Builder(
+            MixActivity.CLIENT_ID, AuthenticationResponse.Type.TOKEN,
+            MixActivity.REDIRECT_URI
+        )
+
+        builder.setScopes(arrayOf("playlist-read-private", "playlist-read-collaborative", "playlist-modify-private"))
+        val request = builder.build()
+
+        AuthenticationClient.openLoginActivity(activity, MixActivity.GOT_TOKEN, request)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        getSpotifyToken()
+
+        startRealTime()
+    }
+
+    fun fillAdapter() {
+        class FillTask : AsyncTask<Void, Void, List<Map<String, String>>>() {
+            override fun doInBackground(vararg params: Void?): List<Map<String, String>> {
+                return AsyncUtils.getPartySongs(myActivity.partyId)
+            }
+
+            override fun onPostExecute(result: List<Map<String, String>>?) {
+                adapter.clear()
+                result?.forEach { adapter.addSong(Song(it.getValue("name"), it.getValue("artist"))) }
+            }
+        }
+        FillTask().execute()
+    }
+
+    fun startRealTime() {
+        myActivity.db.collection(MixActivity.PARTIES).document(myActivity.partyId)
+        currListener = myActivity.db.collection(MixActivity.PARTIES).document(myActivity.partyId)
+            .addSnapshotListener { snapshot, _ ->
+                fillAdapter()
+            }
+    }
+
+    fun initRecycler() {
+        recycler = myActivity.findViewById(R.id.recyclerView)
+        recycler.layoutManager = LinearLayoutManager(context)
+        adapter = Adapter(context!!)
+        recycler.adapter = adapter
+    }
+
+    fun savePlaylistToSpotify(text: String) {
+        Toast.makeText(context, "Sending to Spotify...", Toast.LENGTH_SHORT).show()
+        AsyncUtils.save(myActivity.partyId, text, myActivity.authToken)
+    }
+}
