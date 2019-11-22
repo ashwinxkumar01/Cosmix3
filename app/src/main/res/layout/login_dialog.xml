@@ -12,9 +12,12 @@
         android:layout_height="wrap_content"
         android:hint="Enter a Party Code"
         android:inputType="text"
+        android:shadowColor="@color/normalBlue"
+        android:textCursorDrawable="@null"
         android:textColorHighlight="@color/normalBlue"
         android:textColorHint="@color/normalBlue"
-        android:textColorLink="@color/normalBlue" />
+        android:textColorLink="@color/normalBlue"
+        android:backgroundTint="@color/normalBlue"/>
 
     <LinearLayout
         android:layout_width="match_parent"
