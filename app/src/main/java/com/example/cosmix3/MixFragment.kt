@@ -17,8 +17,8 @@ import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import kotlinx.android.synthetic.main.fragment_mix.*
 import android.R.menu
-
-
+import androidx.appcompat.app.AlertDialog
+import kotlinx.android.synthetic.main.login_dialog.view.*
 
 
 class MixFragment : Fragment() {
@@ -26,7 +26,11 @@ class MixFragment : Fragment() {
     lateinit var recycler: RecyclerView
     lateinit var adapter: Adapter
 
+    lateinit var filterItem: MenuItem
+
     lateinit var currListener: ListenerRegistration
+
+    var filtered = false
 
     companion object {
         lateinit var myActivity: MixActivity
@@ -50,11 +54,42 @@ class MixFragment : Fragment() {
         toolbar.inflateMenu(R.menu.bar)
         val menu = toolbar.menu
 
+        filterItem = menu.findItem(R.id.filter)
+
         toolbar.subtitle = myActivity.partyId
 
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.filter -> {
+
+                    if (!filtered) {
+
+                        val mDialogView = LayoutInflater.from(context).inflate(R.layout.login_dialog, null)
+                        //AlertDialogBuilder
+                        val mBuilder = AlertDialog.Builder(context!!)
+                            .setView(mDialogView)
+                            .setTitle("Enter a filter")
+                        //show dialog
+                        val  mAlertDialog = mBuilder.show()
+                        //login button click of custom layout
+                        mDialogView.dialogLoginBtn.setOnClickListener {
+                            //dismiss dialog
+                            //get text from EditTexts of custom layout
+                            filter(mDialogView.dialogPasswEt.text.toString())
+                            mAlertDialog.dismiss()
+                        }
+                        //cancel button click of custom layout
+                        mDialogView.dialogCancelBtn.setOnClickListener {
+                            //dismiss dialog
+                            mAlertDialog.dismiss()
+                        }
+                    } else {
+                        filterItem.title = "Filter"
+                        filtered = false
+                        fillAdapter()
+                        startRealTime()
+                    }
+
                     true
                 }
 
@@ -153,6 +188,31 @@ class MixFragment : Fragment() {
             .addSnapshotListener { snapshot, _ ->
                 fillAdapter()
             }
+    }
+
+    fun filter(query: String) {
+        class GenTask(val filter: String, val partyId: String, val adapter: Adapter) : AsyncTask<Void, Void, List<String>>() {
+            override fun doInBackground(vararg params: Void?): List<String> {
+                val isrcs: List<String> = AsyncUtils.filterSongs(filter, 5, partyId)
+
+                return isrcs
+            }
+
+            override fun onPostExecute(result: List<String>?) {
+                if (result != null) {
+                    stopRealTime()
+                    adapter.updateData(AsyncUtils.getSongs(result))
+                }
+            }
+        }
+
+        filtered = true
+        filterItem.title = "Reset"
+        stopRealTime()
+
+        GenTask(query, myActivity.partyId, adapter).execute()
+
+        Toast.makeText(context, "filtering party...", Toast.LENGTH_LONG).show()
     }
 
     fun stopRealTime() {

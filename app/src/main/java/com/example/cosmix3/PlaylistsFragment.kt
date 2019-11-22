@@ -53,13 +53,11 @@ class PlaylistsFragment : Fragment() {
             val curr = playlists[position]
             with (holder as PlaylistsViewHolder) {
 
-                val playlistName = curr.name
-
-                name.text = playlistName
+                name.text = curr.name
                 //TODO use glide or whatever to get the playlist image
 
                 itemView.setOnClickListener {
-                    AsyncUtils.add(myActivity.partyId, playlistName, myActivity.authToken)
+                    AsyncUtils.add(myActivity.partyId, curr.id, myActivity.authToken)
                     activity?.supportFragmentManager?.popBackStack()
                 }
             }

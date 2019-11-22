@@ -9,6 +9,13 @@ import com.example.cosmix3.MixActivity.Companion.PARTY_ID
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.login_dialog.view.*
 import kotlinx.android.synthetic.main.login_dialog.view.dialogPasswEt
+import android.text.Html
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 class LoginActivity : AppCompatActivity() {
 
