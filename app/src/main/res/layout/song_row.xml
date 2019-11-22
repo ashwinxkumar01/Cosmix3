@@ -4,11 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="80dp"
+    android:background="@color/normalBlue"
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/cardview_default_elevation"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:background="@drawable/rounded_corners">
+
 
         <ImageView
             android:id="@+id/songLogo"
@@ -29,6 +35,8 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
             android:text="TextView"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/songArtist"
             app:layout_constraintStart_toEndOf="@+id/songLogo"
             app:layout_constraintTop_toTopOf="parent" />
@@ -40,6 +48,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
             android:text="TextView"
+            android:textColor="@android:color/white"
             android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/songName"
