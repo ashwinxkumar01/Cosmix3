@@ -50,6 +50,7 @@ class MixFragment : Fragment() {
         toolbar.inflateMenu(R.menu.bar)
         val menu = toolbar.menu
 
+        toolbar.subtitle = myActivity.partyId
 
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -119,6 +120,19 @@ class MixFragment : Fragment() {
         startRealTime()
     }
 
+    override fun onPause() {
+        super.onPause()
+        stopRealTime()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        fillAdapter()
+
+        startRealTime()
+    }
+
     fun fillAdapter() {
         class FillTask : AsyncTask<Void, Void, List<Map<String, String>>>() {
             override fun doInBackground(vararg params: Void?): List<Map<String, String>> {
@@ -139,6 +153,10 @@ class MixFragment : Fragment() {
             .addSnapshotListener { snapshot, _ ->
                 fillAdapter()
             }
+    }
+
+    fun stopRealTime() {
+        currListener.remove()
     }
 
     fun initRecycler() {
