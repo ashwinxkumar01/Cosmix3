@@ -3,7 +3,9 @@ package com.example.cosmix3
 import java.net.HttpURLConnection
 import java.net.URL
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import java.io.FileNotFoundException
+import java.lang.StringBuilder
 
 const val FUNCTION= "https://us-central1-streamline-5ab87.cloudfunctions.net/"
 
@@ -52,7 +54,19 @@ fun getMapList(list: String) : List<Map<String, String>> {
     return map as List<Map<String, String>>
 }
 
-fun getSongFacts(isrcs: List<String>) : List<Map<String, String>> = getMapList(callFunction(GET_FACTS, mapOf(Pair("isrc", isrcs))))
+fun getSongFacts(isrcs: List<String>) : List<Map<String, String>> {
+
+    if (isrcs.isEmpty()) {
+        return listOf()
+    }
+
+    val builder = StringBuilder()
+    isrcs.forEach {
+        builder.append("-$it")
+    }
+
+    return getMapList(callFunction(GET_FACTS, mapOf(Pair("isrc", builder.toString().substring(1)))))
+}
 
 fun checkParty(partyId: String) : Boolean =
     getDict(callFunction(CHECK_PARTY, mapOf(Pair("id", partyId))))["result"] as Boolean
