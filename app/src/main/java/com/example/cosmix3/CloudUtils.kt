@@ -98,13 +98,11 @@ fun saveGenre(partyId: String, name: String, token: String) {
     callFunction(SAVE_GENRE, mapOf(Pair("id", partyId), Pair("name", name), Pair("token", token), Pair("numSongs", "5")))
 }
 
-fun genFilter(name: String, numSongs: Int, partyID: String) : List<String> = Gson().fromJson(
-    callFunction(
-        GEN_FILTER, mapOf(
-    "name" to name,
-    "numSongs" to numSongs,
-    "id" to partyID
-)), List::class.java) as List<String>
+fun genFilter(name: String, numSongs: Int, partyID: String) : List<Map<String, String>> = getMapList(callFunction(
+    GEN_FILTER, mapOf(
+        "name" to name,
+        "numSongs" to numSongs,
+        "id" to partyID)))
 
 fun getFactsList(id: String) : List<Map<String, String>> = Gson().fromJson(
     callFunction(
