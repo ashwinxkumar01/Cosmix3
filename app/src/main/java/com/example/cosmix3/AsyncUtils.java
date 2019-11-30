@@ -15,23 +15,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class AsyncUtils {
-    public static List<Song> getSongs(List<String> isrcs) {
-        try {
-            List<Map<String, String>> map = Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.getSongFacts(isrcs)).get();
-            List<Song> songs = new ArrayList<>();
-            for (Map<String, String> element : map) {
-                songs.add(new Song(element.get("name"), element.get("artist")));
-            }
-
-            return songs;
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
+//    public static List<Song> getSongs(List<String> isrcs) {
+//        try {
+//            List<Map<String, String>> map = Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.getSongFacts(isrcs)).get();
+//            List<Song> songs = new ArrayList<>();
+//            for (Map<String, String> element : map) {
+//                songs.add(new Song(element.get("name"), element.get("artist")));
+//            }
+//
+//            return songs;
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null;
+//    }
 
     public static boolean checkParty(String partyID) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -90,10 +90,18 @@ public class AsyncUtils {
         });
     }
 
-    public static List<String> filterSongs(String name, int numSongs, String partyId) {
-        Future<List<String>> isrcs = Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.genFilter(name, numSongs, partyId));
+    public static List<Song> filterSongs(String name, int numSongs, String partyId) {
+        Future<List<Map<String, String>>> isrcs = Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.genFilter(name, numSongs, partyId));
         try {
-            return isrcs.get();
+            List<Song> songs = new ArrayList<>();
+
+            List<Map<String, String>> map = isrcs.get();
+
+            for (Map<String, String> element : map) {
+                songs.add(new Song(element.get("name"), element.get("artist"), element.get("image"), element.get("uri")));
+            }
+
+            return songs;
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

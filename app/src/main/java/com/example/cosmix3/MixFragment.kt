@@ -176,7 +176,7 @@ class MixFragment : Fragment() {
 
             override fun onPostExecute(result: List<Map<String, String>>?) {
                 adapter.clear()
-                result?.forEach { adapter.addSong(Song(it.getValue("name"), it.getValue("artist"))) }
+                result?.forEach { adapter.addSong(Song(it.getValue("name"), it.getValue("artist"), it.getValue("image"), it.getValue("uri"))) }
             }
         }
         FillTask().execute()
@@ -191,17 +191,17 @@ class MixFragment : Fragment() {
     }
 
     fun filter(query: String) {
-        class GenTask(val filter: String, val partyId: String, val adapter: Adapter) : AsyncTask<Void, Void, List<String>>() {
-            override fun doInBackground(vararg params: Void?): List<String> {
-                val isrcs: List<String> = AsyncUtils.filterSongs(filter, 5, partyId)
+        class GenTask(val filter: String, val partyId: String, val adapter: Adapter) : AsyncTask<Void, Void, List<Song>>() {
+            override fun doInBackground(vararg params: Void?): List<Song> {
+                val isrcs: List<Song> = AsyncUtils.filterSongs(filter, 5, partyId)
 
                 return isrcs
             }
 
-            override fun onPostExecute(result: List<String>?) {
+            override fun onPostExecute(result: List<Song>?) {
                 if (result != null) {
                     stopRealTime()
-                    adapter.updateData(AsyncUtils.getSongs(result))
+                    adapter.updateData(result as MutableList<Song>)
                 }
             }
         }
