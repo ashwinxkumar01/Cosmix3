@@ -1,26 +1,19 @@
 package com.example.cosmix3
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
-import com.example.cosmix3.MixActivity.Companion.PARTY_ID
+import androidx.appcompat.app.AppCompatActivity
+import com.example.cosmix3.MainActivity.Companion.PARTY_ID
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.login_dialog.view.*
-import kotlinx.android.synthetic.main.login_dialog.view.dialogPasswEt
-import android.text.Html
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
 
 
 class LoginActivity : AppCompatActivity() {
 
     private fun moveToNextScreen(code: String){
-        val nextScreenIntent = Intent(this, MixActivity::class.java).apply {
+        val nextScreenIntent = Intent(this, MainActivity::class.java).apply {
             putExtra(PARTY_ID, code)
         }
         startActivity(nextScreenIntent)

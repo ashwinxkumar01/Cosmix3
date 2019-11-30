@@ -1,23 +1,22 @@
 package com.example.cosmix3
 
-import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.cosmix3.MainActivity.Companion.CLIENT_ID
+import com.example.cosmix3.MainActivity.Companion.REDIRECT_URI
 import com.google.firebase.firestore.ListenerRegistration
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import kotlinx.android.synthetic.main.fragment_mix.*
-import android.R.menu
-import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.login_dialog.view.*
 
 
@@ -26,14 +25,20 @@ class MixFragment : Fragment() {
     lateinit var recycler: RecyclerView
     lateinit var adapter: Adapter
 
+    lateinit var player: Player
+
     lateinit var filterItem: MenuItem
 
     lateinit var currListener: ListenerRegistration
 
     var filtered = false
 
+    var playing = false
+    var shuffled = false
+    var paused = false
+
     companion object {
-        lateinit var myActivity: MixActivity
+        lateinit var myActivity: MainActivity
     }
 
     override fun onCreateView(
@@ -42,11 +47,73 @@ class MixFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_mix, container, false)
-        myActivity = activity as MixActivity
+        myActivity = activity as MainActivity
 
         setHasOptionsMenu(true)
 
         return root
+    }
+
+    private fun setupPlayer() {
+
+        player.setRecycler(recycler)
+
+        player.setOnStop {
+            playing = false
+            paused = false
+            play.setImageResource(R.drawable.ic_play_arrow_black_24dp)
+            shuffle.setImageResource(R.drawable.ic_shuffle_black_24dp)
+            startRealTime()
+        }
+
+        play.setOnClickListener {
+
+            if (playing) {
+                paused = if (paused) {
+                    //resume pressed
+                    player.resume()
+                    play.setImageResource(R.drawable.ic_pause_black_24dp)
+                    false
+                } else {
+                    //pause pressed
+                    player.pause()
+                    play.setImageResource(R.drawable.ic_play_arrow_black_24dp)
+                    true
+                }
+            } else {
+                //play pressed
+                if (player.playable == 1) {
+                    player.start()
+
+                    stopRealTime()
+                    playing = true
+                    paused = false
+
+                    play.setImageResource(R.drawable.ic_pause_black_24dp)
+                    shuffle.setImageResource(R.drawable.ic_stop_black_24dp)
+
+                    Toast.makeText(context, "Mix will stop updating until stopped or finished playing", Toast.LENGTH_SHORT).show()
+                } else if (player.playable == -1) {
+                    Toast.makeText(context, "Must be signed in to Spotify App", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Requires Spotify premium", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        shuffle.setOnClickListener {
+            if (playing) {
+                //stop pressed
+                shuffled = false
+                player.stop()
+            } else {
+                //shuffle pressed
+                shuffled = true
+                stopRealTime()
+                adapter.songs.shuffle()
+                adapter.notifyDataSetChanged()
+            }
+        }
     }
 
     private fun setupToolbar() {
@@ -128,44 +195,53 @@ class MixFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        player = myActivity.myPlayer
+
         initRecycler()
-
         setupToolbar()
-
         fillAdapter()
+        setupPlayer()
     }
 
-    fun getSpotifyToken() {
+    private fun getSpotifyToken() {
         val builder = AuthenticationRequest.Builder(
-            MixActivity.CLIENT_ID, AuthenticationResponse.Type.TOKEN,
-            MixActivity.REDIRECT_URI
+            CLIENT_ID, AuthenticationResponse.Type.TOKEN,
+            REDIRECT_URI
         )
 
         builder.setScopes(arrayOf("playlist-read-private", "playlist-read-collaborative", "playlist-modify-private"))
         val request = builder.build()
 
-        AuthenticationClient.openLoginActivity(activity, MixActivity.GOT_TOKEN, request)
+        AuthenticationClient.openLoginActivity(activity, MainActivity.GOT_TOKEN, request)
     }
 
     override fun onStart() {
         super.onStart()
 
-        getSpotifyToken()
+        if (!playing && !shuffled) {
 
-        startRealTime()
+            if (myActivity.authToken == null) {
+                getSpotifyToken()
+            }
+
+            startRealTime()
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        stopRealTime()
+        if (!playing) {
+            stopRealTime()
+        }
     }
 
     override fun onResume() {
         super.onResume()
 
-        fillAdapter()
-
-        startRealTime()
+        if (!playing && !shuffled) {
+            fillAdapter()
+            startRealTime()
+        }
     }
 
     fun fillAdapter() {
@@ -183,8 +259,8 @@ class MixFragment : Fragment() {
     }
 
     fun startRealTime() {
-        myActivity.db.collection(MixActivity.PARTIES).document(myActivity.partyId)
-        currListener = myActivity.db.collection(MixActivity.PARTIES).document(myActivity.partyId)
+        myActivity.db.collection(MainActivity.PARTIES).document(myActivity.partyId)
+        currListener = myActivity.db.collection(MainActivity.PARTIES).document(myActivity.partyId)
             .addSnapshotListener { snapshot, _ ->
                 fillAdapter()
             }

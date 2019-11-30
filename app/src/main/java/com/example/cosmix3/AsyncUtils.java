@@ -1,14 +1,10 @@
 package com.example.cosmix3;
 
-import android.app.ProgressDialog;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -102,9 +98,7 @@ public class AsyncUtils {
             }
 
             return songs;
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
         return null;

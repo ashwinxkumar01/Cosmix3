@@ -8,21 +8,26 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationResponse
+import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp
+import java.lang.Error
 
-class MixActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     val db = FirebaseFirestore.getInstance()
 
     lateinit var partyId: String
-    lateinit var authToken: String
+    var authToken: String? = null
+    lateinit var myPlayer: Player
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        partyId = intent.getStringExtra(PARTY_ID)
+        partyId = intent.getStringExtra(PARTY_ID)!!
 
         supportFragmentManager.beginTransaction().replace(R.id.fragment_holder, MixFragment()).commit()
+
+        myPlayer = Player(this)
     }
 
     companion object {
@@ -49,7 +54,11 @@ class MixActivity : AppCompatActivity() {
                     MixFragment.myActivity.authToken = response.accessToken
                 }
 
-                else -> Log.println(Log.ERROR, "Spotify login", "SHOULD NOT GET HERE")
+                else -> {
+                    Log.println(Log.ERROR, "Spotify login", "TRY REINITIALIZING PLAYER")
+
+                    myPlayer = Player(this)
+                }
             }
         }
     }

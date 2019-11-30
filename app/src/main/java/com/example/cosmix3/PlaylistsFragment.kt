@@ -24,7 +24,7 @@ class PlaylistsFragment : Fragment() {
 
         val root = inflater.inflate(R.layout.fragment_playlists, container, false)
 
-        myActivity = activity as MixActivity
+        myActivity = activity as MainActivity
 
         return root
     }
@@ -42,7 +42,7 @@ class PlaylistsFragment : Fragment() {
     }
 
     companion object {
-        lateinit var myActivity: MixActivity
+        lateinit var myActivity: MainActivity
     }
 
     inner class PlaylistsAdapter(var playlists: List<Playlist>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
