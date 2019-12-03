@@ -1,12 +1,11 @@
 package com.example.cosmix3
 
-import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.*
+import android.widget.SearchView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,9 +15,6 @@ import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import kotlinx.android.synthetic.main.fragment_mix.*
-import android.R.menu
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.login_dialog.view.*
 
 
@@ -48,6 +44,32 @@ class MixFragment : Fragment() {
         setHasOptionsMenu(true)
 
         return root
+    }
+
+    private fun setupSearchbar() {
+        search_bar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextChange(newText: String): Boolean {
+
+                if (newText.isEmpty()) {
+                    if (filtered) {
+                        startRealTime()
+                        filtered = false
+                    }
+                } else {
+                    stopRealTime()
+                    filtered = true
+                    adapter.filter(newText)
+                }
+
+                return true
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return false
+            }
+
+        })
     }
 
     private fun setupToolbar() {
@@ -134,9 +156,11 @@ class MixFragment : Fragment() {
 
         initRecycler()
 
+        fillAdapter()
+
         setupToolbar()
 
-        fillAdapter()
+        setupSearchbar()
     }
 
     fun getSpotifyToken() {

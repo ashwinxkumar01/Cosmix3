@@ -39,6 +39,16 @@ class Adapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHold
         updateData(mutableListOf())
     }
 
+    fun filter(text: String) {
+        val newData: MutableList<Song> = mutableListOf()
+        for (song in songs) {
+            if (song.name.toLowerCase().contains(text.toLowerCase()) || song.artist.toLowerCase().contains(text.toLowerCase())) {
+                newData.add(song)
+            }
+        }
+        updateData(newData)
+    }
+
     fun addSong(song: Song) {
         songs.add(song)
         notifyDataSetChanged()
