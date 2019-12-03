@@ -78,9 +78,7 @@ public class AsyncUtils {
     }
 
     public static void save(String id, String name, String token) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            CloudUtilsKt.save(id, name.replace(" ","%20"), token);
-        });
+        Executors.newSingleThreadExecutor().execute(() -> CloudUtilsKt.save(id, name.replace(" ","%20"), token));
     }
 
     public static void saveGenre(String id, String name, String token, Toast toast) {
