@@ -221,7 +221,7 @@ class MixFragment : Fragment() {
     fun filter(query: String) {
         class GenTask(val filter: String, val partyId: String, val adapter: Adapter) : AsyncTask<Void, Void, List<Song>>() {
             override fun doInBackground(vararg params: Void?): List<Song> {
-                val isrcs: List<Song> = AsyncUtils.filterSongs(filter, 5, partyId)
+                val isrcs: List<Song> = AsyncUtils.filterSongs(filter, 10, partyId)
 
                 return isrcs
             }
@@ -255,7 +255,7 @@ class MixFragment : Fragment() {
     }
 
     fun savePlaylistToSpotify(text: String) {
-        Toast.makeText(context, "Sending to Spotify...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Sent to Spotify!", Toast.LENGTH_SHORT).show()
         AsyncUtils.save(myActivity.partyId, text, myActivity.authToken)
     }
 }

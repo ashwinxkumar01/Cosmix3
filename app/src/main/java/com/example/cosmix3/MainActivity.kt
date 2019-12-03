@@ -43,7 +43,10 @@ class MixActivity : AppCompatActivity() {
             val response = AuthenticationClient.getResponse(resultCode, data)
 
             when (response.type) {
-                AuthenticationResponse.Type.ERROR -> Toast.makeText(this, "Cannot access Spotify!", Toast.LENGTH_LONG).show()
+                AuthenticationResponse.Type.ERROR -> {
+                    Toast.makeText(this, "Cannot access Spotify!", Toast.LENGTH_LONG).show()
+
+                }
 
                 AuthenticationResponse.Type.TOKEN -> {
                     MixFragment.myActivity.authToken = response.accessToken
