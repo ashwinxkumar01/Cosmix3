@@ -4,8 +4,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class Adapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -18,6 +20,9 @@ class Adapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHold
         with(holder as ViewHolder) {
             name.text = curr.name
             artist.text = curr.artist
+            Glide.with(context).load(curr.image)
+                .into(imageView)
+
         }
     }
 
@@ -42,5 +47,6 @@ class Adapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHold
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var name = itemView.findViewById<TextView>(R.id.songName)
         var artist = itemView.findViewById<TextView>(R.id.songArtist)
+        var imageView: ImageView = itemView.findViewById(R.id.songLogo)
     }
 }

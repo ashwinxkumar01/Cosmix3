@@ -17,6 +17,7 @@ import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import kotlinx.android.synthetic.main.fragment_mix.*
 import android.R.menu
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.login_dialog.view.*
 
@@ -68,9 +69,12 @@ class MixFragment : Fragment() {
                         //AlertDialogBuilder
                         val mBuilder = AlertDialog.Builder(context!!)
                             .setView(mDialogView)
-                            .setTitle("Enter a filter")
+                            .setTitle("Filter party")
+
                         //show dialog
                         val  mAlertDialog = mBuilder.show()
+                        //(mDialogView.findViewById<EditText>(R.id.input)).hint = "Enter a mood or genre"
+
                         //login button click of custom layout
                         mDialogView.dialogLoginBtn.setOnClickListener {
                             //dismiss dialog
