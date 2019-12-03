@@ -91,14 +91,15 @@ public class AsyncUtils {
     }
 
     public static List<Song> filterSongs(String name, int numSongs, String partyId) {
-        Future<List<Map<String, String>>> isrcs = Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.genFilter(name, numSongs, partyId));
+        Future<Map<String, Map<String, String>>> isrcs = Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.genFilter(name, numSongs, partyId));
         try {
             List<Song> songs = new ArrayList<>();
 
-            List<Map<String, String>> map = isrcs.get();
+            Map<String, Map<String, String>> map = isrcs.get();
 
-            for (Map<String, String> element : map) {
-                songs.add(new Song(element.get("name"), element.get("artist"), element.get("image"), element.get("uri")));
+            for (String isrc: map.keySet()) {
+                Map<String, String> factsMap = map.get(isrc);
+                songs.add(new Song(factsMap.get("name"), factsMap.get("artist"), factsMap.get("image"), factsMap.get("uri"), isrc));
             }
 
             return songs;
@@ -110,12 +111,23 @@ public class AsyncUtils {
         return null;
     }
 
-    public static List<Map<String, String>> getPartySongs(String partyId) {
+    public static Map<String, Map<String, String>> getPartySongs(String partyId) {
         try {
             return Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.getFactsList(partyId)).get();
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void saveIsrcs(String name, List<Song> songs, String token) {
+        if (songs.size() > 0) {
+            StringBuilder isrcBuilder = new StringBuilder();
+            isrcBuilder.append(songs.get(0).getIsrc());
+            for (int i = 1; i < songs.size(); i++) {
+                isrcBuilder.append('-').append(songs.get(i).getIsrc());
+            }
+            Executors.newSingleThreadExecutor().execute(() -> CloudUtilsKt.saveIsrcs(name, isrcBuilder.toString(), token));
+        }
     }
 }
