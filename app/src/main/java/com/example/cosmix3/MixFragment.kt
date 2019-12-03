@@ -2,6 +2,7 @@ package com.example.cosmix3
 
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.Toast
@@ -28,6 +29,7 @@ class MixFragment : Fragment() {
     lateinit var currListener: ListenerRegistration
 
     var filtered = false
+    var currList = mutableListOf<Song>()
 
     companion object {
         lateinit var myActivity: MixActivity
@@ -59,7 +61,13 @@ class MixFragment : Fragment() {
                 } else {
                     stopRealTime()
                     filtered = true
-                    adapter.filter(newText)
+                    val newData = mutableListOf<Song>()
+                    for (song in currList) {
+                        if (song.name.toLowerCase().contains(newText.toLowerCase()) || song.artist.toLowerCase().contains(newText.toLowerCase())) {
+                            newData.add(song)
+                        }
+                    }
+                    adapter.updateData(newData)
                 }
 
                 return true
@@ -203,8 +211,9 @@ class MixFragment : Fragment() {
             }
 
             override fun onPostExecute(result: List<Map<String, String>>?) {
-                adapter.clear()
-                result?.forEach { adapter.addSong(Song(it.getValue("name"), it.getValue("artist"), it.getValue("image"), it.getValue("uri"))) }
+                currList = mutableListOf()
+                result?.forEach { currList.add(Song(it.getValue("name"), it.getValue("artist"), it.getValue("image"), it.getValue("uri"))) }
+                adapter.updateData(currList)
             }
         }
         FillTask().execute()

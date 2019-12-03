@@ -35,24 +35,14 @@ class Adapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged()
     }
 
-    fun clear() {
-        updateData(mutableListOf())
-    }
+//    fun clear() {
+//        updateData(mutableListOf())
+//    }
 
-    fun filter(text: String) {
-        val newData: MutableList<Song> = mutableListOf()
-        for (song in songs) {
-            if (song.name.toLowerCase().contains(text.toLowerCase()) || song.artist.toLowerCase().contains(text.toLowerCase())) {
-                newData.add(song)
-            }
-        }
-        updateData(newData)
-    }
-
-    fun addSong(song: Song) {
-        songs.add(song)
-        notifyDataSetChanged()
-    }
+//    fun addSong(song: Song) {
+//        songs.add(song)
+//        notifyDataSetChanged()
+//    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var name = itemView.findViewById<TextView>(R.id.songName)
