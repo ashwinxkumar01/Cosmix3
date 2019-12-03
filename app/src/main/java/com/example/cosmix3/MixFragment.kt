@@ -29,6 +29,7 @@ class MixFragment : Fragment() {
     lateinit var currListener: ListenerRegistration
 
     var filtered = false
+    var currFilter = ""
     var currList = mutableListOf<Song>()
 
     companion object {
@@ -109,7 +110,8 @@ class MixFragment : Fragment() {
                         mDialogView.dialogLoginBtn.setOnClickListener {
                             //dismiss dialog
                             //get text from EditTexts of custom layout
-                            filter(mDialogView.dialogPasswEt.text.toString())
+                            currFilter = mDialogView.dialogPasswEt.text.toString()
+                            filter(currFilter)
                             mAlertDialog.dismiss()
                         }
                         //cancel button click of custom layout
@@ -129,7 +131,13 @@ class MixFragment : Fragment() {
 
                 R.id.push -> {
 
-                    savePlaylistToSpotify(myActivity.partyId)
+                    if (filtered) {
+                        AsyncUtils.saveIsrcs(currFilter, currList, myActivity.authToken)
+                    } else {
+                        AsyncUtils.save(myActivity.partyId, myActivity.partyId, myActivity.authToken)
+                    }
+
+                    Toast.makeText(context, "Sent to Spotify!", Toast.LENGTH_SHORT).show()
 
                     true
 
@@ -205,14 +213,29 @@ class MixFragment : Fragment() {
     }
 
     fun fillAdapter() {
-        class FillTask : AsyncTask<Void, Void, List<Map<String, String>>>() {
-            override fun doInBackground(vararg params: Void?): List<Map<String, String>> {
+        class FillTask : AsyncTask<Void, Void, Map<String, Map<String, String>>>() {
+            override fun doInBackground(vararg params: Void?): Map<String, Map<String, String>> {
                 return AsyncUtils.getPartySongs(myActivity.partyId)
             }
 
-            override fun onPostExecute(result: List<Map<String, String>>?) {
-                currList = mutableListOf()
-                result?.forEach { currList.add(Song(it.getValue("name"), it.getValue("artist"), it.getValue("image"), it.getValue("uri"))) }
+            override fun onPostExecute(result: Map<String, Map<String, String>>?) {
+                if (result != null) {
+                    currList = mutableListOf()
+                    for (isrc in result.keys) {
+                        val factsMap = result[isrc]
+                        if (factsMap != null) {
+                            currList.add(
+                                Song(
+                                    factsMap["name"]!!,
+                                    factsMap["artist"]!!,
+                                    factsMap["image"]!!,
+                                    factsMap["uri"]!!,
+                                    isrc
+                                )
+                            )
+                        }
+                    }
+                }
                 adapter.updateData(currList)
             }
         }
@@ -261,10 +284,5 @@ class MixFragment : Fragment() {
         recycler.layoutManager = LinearLayoutManager(context)
         adapter = Adapter(context!!)
         recycler.adapter = adapter
-    }
-
-    fun savePlaylistToSpotify(text: String) {
-        Toast.makeText(context, "Sent to Spotify!", Toast.LENGTH_SHORT).show()
-        AsyncUtils.save(myActivity.partyId, text, myActivity.authToken)
     }
 }

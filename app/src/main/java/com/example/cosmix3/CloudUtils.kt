@@ -18,6 +18,9 @@ const val SAVE = "save"
 const val SAVE_GENRE = "gen_playlist"
 const val GEN_FILTER = "gen_filter"
 const val GET_FACTS_LIST = "get_facts_list"
+const val SAVE_ISRCS = "save_isrcs"
+
+val gson = Gson()
 
 private fun callFunction(name: String, params: Map<String, Any>) : String {
 
@@ -43,7 +46,6 @@ private fun callFunction(name: String, params: Map<String, Any>) : String {
 }
 
 fun getDict(json: String) : Map<String, String> {
-    val gson = Gson()
     val map = gson.fromJson(json, Map::class.java)
     return map as Map<String, String>
 }
@@ -52,6 +54,12 @@ fun getMapList(list: String) : List<Map<String, String>> {
     val gson = Gson()
     val map = gson.fromJson(list, List::class.java)
     return map as List<Map<String, String>>
+}
+
+fun getMapMap(mapmap: String) : Map<String, Map<String, String>> {
+    val gson = Gson()
+    val map = gson.fromJson(mapmap, Map::class.java)
+    return map as Map<String, Map<String, String>>
 }
 
 fun getSongFacts(isrcs: List<String>) : List<Map<String, String>> {
@@ -98,12 +106,15 @@ fun saveGenre(partyId: String, name: String, token: String) {
     callFunction(SAVE_GENRE, mapOf(Pair("id", partyId), Pair("name", name), Pair("token", token), Pair("numSongs", "5")))
 }
 
-fun genFilter(name: String, numSongs: Int, partyID: String) : List<Map<String, String>> = getMapList(callFunction(
+fun genFilter(name: String, numSongs: Int, partyID: String) : Map<String, Map<String, String>> = getMapMap(callFunction(
     GEN_FILTER, mapOf(
         "name" to name,
         "numSongs" to numSongs,
         "id" to partyID)))
 
-fun getFactsList(id: String) : List<Map<String, String>> = Gson().fromJson(
-    callFunction(
-        GET_FACTS_LIST, mapOf(Pair("id", id))), List::class.java) as List<Map<String, String>>
+fun getFactsList(id: String) : Map<String, Map<String, String>> = getMapMap(callFunction(
+    GET_FACTS_LIST, mapOf(Pair("id", id))))
+
+fun saveIsrcs(name: String, isrcs: String, token: String) {
+    callFunction(SAVE_ISRCS, mapOf(Pair("name", name), Pair("isrcs", isrcs), Pair("token", token)))
+}
