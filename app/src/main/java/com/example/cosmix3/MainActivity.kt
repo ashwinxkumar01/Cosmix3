@@ -50,7 +50,6 @@ class MixActivity : AppCompatActivity() {
 
                 AuthenticationResponse.Type.TOKEN -> {
                     MixFragment.myActivity.authToken = response.accessToken
-                    Log.wtf("TOLEN", authToken)
                 }
 
                 else -> Log.println(Log.ERROR, "Spotify login", "SHOULD NOT GET HERE")

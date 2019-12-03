@@ -132,7 +132,7 @@ class MixFragment : Fragment() {
                 R.id.push -> {
 
                     if (filtered) {
-                        AsyncUtils.saveIsrcs(currFilter, currList, myActivity.authToken)
+                        AsyncUtils.saveIsrcs(currFilter, adapter.songs, myActivity.authToken)
                     } else {
                         AsyncUtils.save(myActivity.partyId, myActivity.partyId, myActivity.authToken)
                     }
