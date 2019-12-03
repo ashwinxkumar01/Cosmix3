@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class PlaylistsFragment : Fragment() {
 
@@ -54,7 +55,8 @@ class PlaylistsFragment : Fragment() {
             with (holder as PlaylistsViewHolder) {
 
                 name.text = curr.name
-                //TODO use glide or whatever to get the playlist image
+                Glide.with(this@PlaylistsFragment).load(curr.image).placeholder(R.drawable.cosmix_logo)
+                    .into(image)
 
                 itemView.setOnClickListener {
                     AsyncUtils.add(myActivity.partyId, curr.id, myActivity.authToken)

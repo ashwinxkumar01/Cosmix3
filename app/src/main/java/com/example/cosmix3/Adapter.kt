@@ -20,7 +20,7 @@ class Adapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHold
         with(holder as ViewHolder) {
             name.text = curr.name
             artist.text = curr.artist
-            Glide.with(context).load(curr.image)
+            Glide.with(context).load(curr.image).placeholder(R.drawable.cosmix_logo)
                 .into(imageView)
 
         }
