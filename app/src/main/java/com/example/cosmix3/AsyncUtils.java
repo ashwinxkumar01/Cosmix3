@@ -89,15 +89,14 @@ public class AsyncUtils {
     }
 
     public static List<Song> filterSongs(String name, int numSongs, String partyId) {
-        Future<Map<String, Map<String, String>>> isrcs = Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.genFilter(name, numSongs, partyId));
+        Future<List<Map<String, String>>> isrcs = Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.genFilter(name, numSongs, partyId));
         try {
             List<Song> songs = new ArrayList<>();
 
-            Map<String, Map<String, String>> map = isrcs.get();
+            List<Map<String, String>> map = isrcs.get();
 
-            for (String isrc: map.keySet()) {
-                Map<String, String> factsMap = map.get(isrc);
-                songs.add(new Song(factsMap.get("name"), factsMap.get("artist"), factsMap.get("image"), factsMap.get("uri"), isrc));
+            for (Map<String, String> factsMap : map) {
+                songs.add(new Song(factsMap.get("name"), factsMap.get("artist"), factsMap.get("image"), factsMap.get("uri"), factsMap.get("isrc")));
             }
 
             return songs;
@@ -109,7 +108,7 @@ public class AsyncUtils {
         return null;
     }
 
-    public static Map<String, Map<String, String>> getPartySongs(String partyId) {
+    public static List<Map<String, String>> getPartySongs(String partyId) {
         try {
             return Executors.newSingleThreadExecutor().submit(() -> CloudUtilsKt.getFactsList(partyId)).get();
         } catch (ExecutionException | InterruptedException e) {

@@ -213,16 +213,15 @@ class MixFragment : Fragment() {
     }
 
     fun fillAdapter() {
-        class FillTask : AsyncTask<Void, Void, Map<String, Map<String, String>>>() {
-            override fun doInBackground(vararg params: Void?): Map<String, Map<String, String>> {
+        class FillTask : AsyncTask<Void, Void, List<Map<String, String>>>() {
+            override fun doInBackground(vararg params: Void?): List<Map<String, String>> {
                 return AsyncUtils.getPartySongs(myActivity.partyId)
             }
 
-            override fun onPostExecute(result: Map<String, Map<String, String>>?) {
+            override fun onPostExecute(result: List<Map<String, String>>?) {
                 if (result != null) {
                     currList = mutableListOf()
-                    for (isrc in result.keys) {
-                        val factsMap = result[isrc]
+                    for (factsMap in result) {
                         if (factsMap != null) {
                             currList.add(
                                 Song(
@@ -230,7 +229,7 @@ class MixFragment : Fragment() {
                                     factsMap["artist"]!!,
                                     factsMap["image"]!!,
                                     factsMap["uri"]!!,
-                                    isrc
+                                    factsMap["isrc"]!!
                                 )
                             )
                         }
@@ -246,7 +245,12 @@ class MixFragment : Fragment() {
         myActivity.db.collection(MixActivity.PARTIES).document(myActivity.partyId)
         currListener = myActivity.db.collection(MixActivity.PARTIES).document(myActivity.partyId)
             .addSnapshotListener { snapshot, _ ->
-                fillAdapter()
+                val mapList = snapshot?.get("filtTracks") as List<Map<String, String>>
+                val songs: MutableList<Song> = mutableListOf()
+                for (map in mapList) {
+                    songs.add(Song(map["name"]!!, map["artist"]!!, map["image"]!!, map["uri"]!!, map["isrc"]!!))
+                }
+                adapter.updateData(songs.toList())
             }
     }
 

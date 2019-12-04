@@ -11,12 +11,12 @@ import com.bumptech.glide.Glide
 
 class Adapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var songs : MutableList<Song> = mutableListOf<Song>()
+    var songs : List<Song> = listOf()
 
     override fun getItemCount() = songs.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder , position: Int) {
-        val curr = songs[position]
+        val curr: Song = songs[position]
         with(holder as ViewHolder) {
             name.text = curr.name
             artist.text = curr.artist
@@ -30,7 +30,7 @@ class Adapter(var context: Context) : RecyclerView.Adapter<RecyclerView.ViewHold
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.song_row, parent, false))
     }
 
-    fun updateData(newData: MutableList<Song>) {
+    fun updateData(newData: List<Song>) {
         songs = newData
         notifyDataSetChanged()
     }

@@ -56,12 +56,6 @@ fun getMapList(list: String) : List<Map<String, String>> {
     return map as List<Map<String, String>>
 }
 
-fun getMapMap(mapmap: String) : Map<String, Map<String, String>> {
-    val gson = Gson()
-    val map = gson.fromJson(mapmap, Map::class.java)
-    return map as Map<String, Map<String, String>>
-}
-
 fun getSongFacts(isrcs: List<String>) : List<Map<String, String>> {
 
     if (isrcs.isEmpty()) {
@@ -106,13 +100,13 @@ fun saveGenre(partyId: String, name: String, token: String) {
     callFunction(SAVE_GENRE, mapOf(Pair("id", partyId), Pair("name", name), Pair("token", token), Pair("numSongs", "5")))
 }
 
-fun genFilter(name: String, numSongs: Int, partyID: String) : Map<String, Map<String, String>> = getMapMap(callFunction(
+fun genFilter(name: String, numSongs: Int, partyID: String) : List<Map<String, String>> = getMapList(callFunction(
     GEN_FILTER, mapOf(
         "name" to name,
         "numSongs" to numSongs,
         "id" to partyID)))
 
-fun getFactsList(id: String) : Map<String, Map<String, String>> = getMapMap(callFunction(
+fun getFactsList(id: String) : List<Map<String, String>> = getMapList(callFunction(
     GET_FACTS_LIST, mapOf(Pair("id", id))))
 
 fun saveIsrcs(name: String, isrcs: String, token: String) {
